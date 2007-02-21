@@ -8,8 +8,8 @@
 
 //__________________________________________________________________________________________________
 AlignmentParameters::AlignmentParameters() :
-  theAlignable( 0),
-  theUserVariables( 0),
+  theAlignable(0),
+  theUserVariables(0),
   bValid(true)
 {}
 
@@ -18,12 +18,17 @@ AlignmentParameters::AlignmentParameters() :
 AlignmentParameters::AlignmentParameters(Alignable* object, const AlgebraicVector& par, 
 					 const AlgebraicSymMatrix& cov) :
   theAlignable(object),
-  theData( DataContainer( new AlignmentParametersData(par,cov) ) ),
+  theParameters(par),
+  theCovariance(cov),
   theUserVariables(0),
+  theSelector( size(), true ),
   bValid(true)
 {
-  // is the data consistent?
-  theData->checkConsistency();
+
+  if ( par.num_row() != cov.num_row() )
+    throw cms::Exception("LogicError") << "@SUB=AlignmentParameters::AlignmentParameters "
+                                       << "Size mismatch: parameter size " << par.num_row() 
+                                       << ", covariance size " << cov.num_row() << ".";
 }
 
 
@@ -32,80 +37,82 @@ AlignmentParameters::AlignmentParameters(Alignable* object, const AlgebraicVecto
                                          const AlgebraicSymMatrix& cov, 
                                          const std::vector<bool>& sel) :
   theAlignable(object),
-  theData( DataContainer( new AlignmentParametersData(par,cov,sel) ) ),
+  theParameters(par),
+  theCovariance(cov),
   theUserVariables(0),
-  bValid(true)
-{
-  // is the data consistent?
-  theData->checkConsistency();
-}
+  theSelector(sel)
+{  
 
-
-//__________________________________________________________________________________________________
-AlignmentParameters::AlignmentParameters(Alignable* object,
-					 const AlignmentParametersData::DataContainer& data ) :
-  theAlignable(object),
-  theData(data),
-  theUserVariables(0),
-  bValid(true)
-{
-  // is the data consistent?
-  theData->checkConsistency();
+  if ( (par.num_row() != cov.num_row()) || (par.num_row() != static_cast<int>(sel.size())) )
+    throw cms::Exception("LogicError") << "@SUB=AlignmentParameters::AlignmentParameters "
+                                       << "Size mismatch: parameter size " << par.num_row() 
+                                       << ", covariance size " << cov.num_row()
+                                       << ", selection size " << sel.size() << ".";
 }
 
 
 //__________________________________________________________________________________________________
 AlignmentParameters::~AlignmentParameters()
 { 
-  if ( theUserVariables ) delete theUserVariables;
+
+  delete theUserVariables;
+
 }
 
 
 //__________________________________________________________________________________________________
 const std::vector<bool>& AlignmentParameters::selector(void) const
 { 
-  return theData->selector();
+  return theSelector;
 }
 
 //__________________________________________________________________________________________________
 const int AlignmentParameters::numSelected(void) const
 {
-  return theData->numSelected();
+
+  int nsel=0;
+  for ( int i=0; i<size(); i++ ) if ( theSelector[i] ) nsel++;
+  return nsel;
+
 }
 
 
 //__________________________________________________________________________________________________
 AlgebraicVector AlignmentParameters::selectedParameters(void) const
 { 
-  return collapseVector( theData->parameters(), theData->selector() );
+
+  AlgebraicVector selpar=collapseVector(theParameters,theSelector);
+  return selpar;
+
 }
 
 
 //__________________________________________________________________________________________________
 AlgebraicSymMatrix AlignmentParameters::selectedCovariance(void) const
 { 
-  return collapseSymMatrix( theData->covariance(), theData->selector() );
+  AlgebraicSymMatrix selcov=collapseSymMatrix( theCovariance, theSelector );
+  return selcov;
 }
 
 
 //__________________________________________________________________________________________________
 const AlgebraicVector& AlignmentParameters::parameters(void) const
 { 
-  return theData->parameters();
+  return theParameters;
 }
 
 
 //__________________________________________________________________________________________________
 const AlgebraicSymMatrix& AlignmentParameters::covariance(void) const
 { 
-  return theData->covariance();
+  return theCovariance;
 }
 
 
 //__________________________________________________________________________________________________
 void  AlignmentParameters::setUserVariables(AlignmentUserVariables* auv)
 { 
-  if ( theUserVariables ) delete theUserVariables;
+  delete theUserVariables;
   theUserVariables = auv;
 }
 
@@ -127,7 +134,7 @@ Alignable* AlignmentParameters::alignable(void) const
 //__________________________________________________________________________________________________
 const int AlignmentParameters::size(void) const
 { 
-  return theData->parameters().num_row();
+  return theParameters.num_row();
 }
 
 

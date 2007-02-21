@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "Alignment/CommonAlignment/interface/AlignmentParametersData.h"
+#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
 #include "Alignment/CommonAlignment/interface/AlignmentUserVariables.h"
 
 /// \class AlignmentParameters 
@@ -19,8 +19,8 @@
 /// parameters/derivatives/covariance as subvector/submatrix
 /// of reduced size.
 ///
-///  $Date: 2006/10/19 13:38:08 $
-///  $Revision: 1.3 $
+///  $Date: 2006/10/17 11:02:42 $
+///  $Revision: 1.11 $
 /// (last update by $Author: flucke $)
 
 class Alignable;
@@ -33,8 +33,6 @@ class AlignmentParameters
 
 public:
 
-  typedef AlignmentParametersData::DataContainer DataContainer;
-
   /// Default constructor
   AlignmentParameters();
 
@@ -45,9 +43,6 @@ public:
   /// Constructor including selection of active parameters
   AlignmentParameters(Alignable* object, const AlgebraicVector& par, 
                       const AlgebraicSymMatrix& cov, const std::vector<bool>& sel);
-
-  /// Constructor
-  AlignmentParameters(Alignable* object, const DataContainer& data );
 
   /// Destructor
   virtual ~AlignmentParameters();
@@ -114,9 +109,12 @@ protected:
   
   Alignable* theAlignable;
 
-  DataContainer theData;
+  AlgebraicVector theParameters;
+  AlgebraicSymMatrix theCovariance;
 
   AlignmentUserVariables* theUserVariables;
+
+  std::vector<bool> theSelector; ///< Bit mask of selected parameters
 
   bool bValid; ///< True if parameters are valid
 
