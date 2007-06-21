@@ -1,8 +1,8 @@
 /** \file Alignable.cc
  *
- *  $Date: 2007/03/13 21:07:04 $
- *  $Revision: 1.10 $
- *  (last update by $Author: cklae $)
+ *  $Date: 2007/03/16 16:08:19 $
+ *  $Revision: 1.11 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
@@ -26,6 +26,22 @@ Alignable::~Alignable()
 
 //__________________________________________________________________________________________________
 void Alignable::deepComponents( std::vector<const Alignable*>& result ) const
+{
+  const std::vector<Alignable*>& comp = components();
+
+  unsigned int nComp = comp.size();
+
+  if (nComp > 0)
+    for (unsigned int i = 0; i < nComp; ++i)
+    {
+      comp[i]->deepComponents(result);
+    }
+  else
+    result.push_back(this);
+}
+
+//__________________________________________________________________________________________________
+void Alignable::deepComponents( std::vector<Alignable*>& result )
 {
   const std::vector<Alignable*>& comp = components();
 
