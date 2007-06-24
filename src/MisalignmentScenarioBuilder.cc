@@ -1,9 +1,9 @@
 /// \file
 ///
-/// $Date: 2007/06/04 07:38:23 $
-/// $Revision: 1.2 $
+/// $Date$
+/// $Revision$
 ///
-/// $Author: fronga $
+/// $Author$
 /// \author Frederic Ronga - CERN-PH-CMG
 
 #include <string>
@@ -248,9 +248,6 @@ const bool MisalignmentScenarioBuilder::isTopLevel_( const std::string& paramete
   else if ( root == "TEC" ) return true;
   else if ( root == "TID" ) return true;
   else if ( root == "TPE" ) return true;
-  else if ( root == "DTSector" ) return true;
-  else if ( root == "CSCSector" ) return true;
-  else if ( root == "Muon" ) return true;
 
   return false;
 
