@@ -7,7 +7,6 @@
 
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
 
-
 //__________________________________________________________________________________________________
 AlignableDet::AlignableDet( const GeomDet* geomDet ) : 
   AlignableComposite( geomDet ), 
@@ -31,7 +30,8 @@ AlignableDet::AlignableDet( const GeomDet* geomDet ) :
                                             (*idet)->surface() ) );
       }
   }
-  
+  // Ensure that the surface is not screwed up by addComponent, it must stay the GeomDet's one:
+  theSurface = AlignableSurface(geomDet->surface());
 }
 
 
